@@ -1,0 +1,11 @@
+<type>: <short summary>
+
+Why:
+- <reason for this change>
+
+What:
+- <main change 1>
+- <main change 2>
+
+Validation:
+- <how you checked this>
