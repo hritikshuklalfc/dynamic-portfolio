@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hritik Shukla</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&family=Space+Mono:wght@400;700&family=Syne:wght@600;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+    <script src="js/script.js" defer></script>
+  </head>
+  <body>
+    <div id="cursor-h"></div>
+    <div id="cursor-v"></div>
+    <div id="cursor-dot"></div>
+
+    <div id="loader">
+      <div id="load-pct">000</div>
+      <div class="load-text">INITIALIZING TELEMETRY...</div>
+      <div class="load-line"><div id="load-bar"></div></div>
+    </div>
+
+    <div class="hero-track" id="hero-track">
+      <div class="hero-sticky">
+        <canvas id="skcanvas"></canvas>
+        <div class="vignette"></div>
+        <div class="hud-gradient"></div>
+
+        <div class="hud-border hud-top"></div>
+        <div class="hud-border hud-bottom"></div>
+        <div class="hud-border hud-left"></div>
+        <div class="hud-border hud-right"></div>
+        <div class="corner c-tl"></div>
+        <div class="corner c-tr"></div>
+        <div class="corner c-bl"></div>
+        <div class="corner c-br"></div>
+
+        <div class="hud-element" id="hud-logo">Hritik Shukla</div>
+        <div class="hud-element" id="hud-status">
+          LOC: <span>HYDERABAD</span><br />
+          SYS: <span>BITS PILANI CS</span><br />
+          OBJ: <span>MAR '26 INTERNSHIP</span>
+        </div>
+
+        <div class="hud-element" id="hud-progress-wrap">
+          <span id="rpm-counter">0900 RPM</span>
+          <div class="rpm-track">
+            <div class="rpm-fill" id="rpm-fill"></div>
+            <div class="rpm-redline-zone"></div>
+          </div>
+        </div>
+        <div class="hud-element" id="hud-nav">
+          <a href="#about" class="hud-btn">SCROLL_DOWN</a>
+        </div>
+
+        <div id="landing-title">
+          <h1 class="ch-title">
+            <span>HRITIK</span>
+            <span class="filled">SHUKLA.</span>
+          </h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-layer">
+      <section class="section theme-black" id="about">
+        <div class="container">
+          <div class="label">01 &mdash; The Logic</div>
+          <div class="grid-2">
+            <h2 class="section-title">
+              About<br /><span class="italic">Me.</span>
+            </h2>
+            <div class="text-block">
+              <p class="body-text">
+                Hey, I'm Hritik Shukla. Currently a 1st Year CSE student at NIAT
+                (NxtWave Institute of Advanced Technology), based in Hyderabad.
+                I build full-stack web applications and explore data-driven
+                tools.
+              </p>
+              <p class="body-text mt-1">
+                Outside of coding, I enjoy competing at Hackathons, playing PC
+                Games, Photography, Poetry and spending time with my family.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section theme-white" id="projects">
+        <div class="container">
+          <div class="label">02 &mdash; Deployments</div>
+          <h2 class="section-title" style="margin-bottom: 3rem">
+            Selected <br /><span class="italic">Environments.</span>
+          </h2>
+
+          <div class="project-list">
+            <a
+              href="https://devpost.com/software/pedal-a8but5"
+              target="_blank"
+              class="project-row"
+            >
+              <div class="p-num">01</div>
+              <div class="p-title">Pedel</div>
+              <div class="p-tech">Base-44 // Prompt Engeneering</div>
+            </a>
+            <a
+              href="https://github.com/hritikshuklalfc/xAssassin.git"
+              target="_blank"
+              class="project-row"
+            >
+              <div class="p-num">02</div>
+              <div class="p-title">xAssassin</div>
+              <div class="p-tech">Python Data Engine</div>
+            </a>
+            <a
+              href="https://hritikpedia.netlify.app/"
+              target="_blank"
+              class="project-row"
+            >
+              <div class="p-num">03</div>
+              <div class="p-title">HritikPedia</div>
+              <div class="p-tech">Fetch API // Tailwind // JS</div>
+            </a>
+            <a
+              href="https://thehollowscript.vercel.app/"
+              target="_blank"
+              class="project-row"
+            >
+              <div class="p-num">04</div>
+              <div class="p-title">The Hollow Script</div>
+              <div class="p-tech">JS // Tailwind</div>
+            </a>
+
+            <a
+              href="https://github.com/hritikshuklalfc/mplSoccer-Projects.git"
+              target="_blank"
+              class="project-row"
+            >
+              <div class="p-num">05</div>
+              <div class="p-title">MPL Soccer Tools</div>
+              <div class="p-tech">Python // Numpy</div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section theme-black" id="contact">
+        <div class="container">
+          <div class="label">03 &mdash; End of Track</div>
+          <div class="grid-2">
+            <h2 class="section-title">
+              <span class="italic">Wait, before you go...</span>
+            </h2>
+            <div class="text-block">
+              <p class="body-text">
+                I’m a developer who actually enjoys the "I have no idea how to
+                do this" phase of a project, because that’s where the best
+                learning happens. Whether it’s debugging a messy Library Logics
+                or fixing the broken UI Element or trying to find a pattern in a
+                CSV file, I’m all in.
+              </p>
+              <!-- <p class="body-text mt-1">
+                Have a challenge for me? Let’s talk ;)
+              </p> -->
+              <a
+                href="mailto:thehritikshukla@gmail.com"
+                class="magnetic-btn mt-2"
+                >Say Bello!</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="container footer-flex">
+          <div>&copy; 2026 HRITIK SHUKLA</div>
+          <div>SYSTEMS NOMINAL</div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
