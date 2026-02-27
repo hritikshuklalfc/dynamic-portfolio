@@ -127,24 +127,42 @@ function renderCanvas() {
 }
 
 // Preload the first 400 frames
+// --- PROGRESSIVE PRELOADER ---
+const framesToWait = 35; // Boot the site after just 35 frames
+let hasBooted = false;
+
 for (let i = 1; i <= maxFrames; i++) {
   const img = new Image();
   img.src = `assets/${String(i).padStart(5, "0")}.png`;
+
   img.onload = () => {
     loaded++;
-    let pct = Math.floor((loaded / maxFrames) * 100);
-    loadPct.innerText = String(pct).padStart(3, "0");
-    loadBar.style.width = pct + "%";
+
+    // Fake the percentage so it hits 100% quickly based on our 35 frame target
+    if (!hasBooted) {
+      let pct = Math.min(Math.floor((loaded / framesToWait) * 100), 100);
+      loadPct.innerText = String(pct).padStart(3, "0");
+      loadBar.style.width = pct + "%";
+    }
+
     if (loaded === 1) renderCanvas();
-    if (loaded === maxFrames) initAnimations();
+
+    // Ignite the site early. Let the rest load invisibly in the background.
+    if (loaded >= framesToWait && !hasBooted) {
+      hasBooted = true;
+      initAnimations();
+    }
   };
   images.push(img);
 }
 
-// Fallback safety
+// Fallback safety (drops from 4000ms to 2500ms so they aren't stuck waiting)
 setTimeout(() => {
-  if (loaded < maxFrames) initAnimations();
-}, 4000);
+  if (!hasBooted) {
+    hasBooted = true;
+    initAnimations();
+  }
+}, 2500);
 
 // --- 4. Scroll Animations & Reveal Logic ---
 function initAnimations() {
