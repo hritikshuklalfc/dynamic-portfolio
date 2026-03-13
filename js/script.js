@@ -2,48 +2,71 @@
 const c_h = document.getElementById("cursor-h");
 const c_v = document.getElementById("cursor-v");
 const c_dot = document.getElementById("cursor-dot");
+const prefersReducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+).matches;
+const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
 let mx = window.innerWidth / 2,
   my = window.innerHeight / 2;
 
-document.addEventListener("mousemove", (e) => {
-  mx = e.clientX;
-  my = e.clientY;
-});
-
-// Smooth cursor tracking
-gsap.ticker.add(() => {
-  gsap.set(c_h, { x: mx, y: my });
-  gsap.set(c_v, { x: mx, y: my });
-  gsap.set(c_dot, { x: mx, y: my });
-});
-
-// Hover States
-document
-  .querySelectorAll("a, .magnetic-btn, .hud-btn, .project-row")
-  .forEach((el) => {
-    el.addEventListener("mouseenter", () => {
-      gsap.to([c_h, c_v], { scale: 1.5, opacity: 0.3, duration: 0.3 });
-      gsap.to(c_dot, { scale: 3, backgroundColor: "#fff", duration: 0.3 });
-    });
-    el.addEventListener("mouseleave", () => {
-      gsap.to([c_h, c_v], { scale: 1, opacity: 1, duration: 0.3 });
-      gsap.to(c_dot, {
-        scale: 1,
-        backgroundColor: "var(--accent)",
-        duration: 0.3,
-      });
-    });
+if (isTouch || prefersReducedMotion) {
+  document.body.classList.add("no-custom-cursor");
+} else {
+  document.addEventListener("mousemove", (e) => {
+    mx = e.clientX;
+    my = e.clientY;
   });
 
-// --- 2. Lenis Smooth Scroll & Engine Physics ---
-const lenis = new Lenis({
-  duration: 1.5,
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  smoothWheel: true,
-});
+  const setCHX = gsap.quickSetter(c_h, "x", "px");
+  const setCHY = gsap.quickSetter(c_h, "y", "px");
+  const setCVX = gsap.quickSetter(c_v, "x", "px");
+  const setCVY = gsap.quickSetter(c_v, "y", "px");
+  const setCDX = gsap.quickSetter(c_dot, "x", "px");
+  const setCDY = gsap.quickSetter(c_dot, "y", "px");
 
+  // Smooth cursor tracking
+  gsap.ticker.add(() => {
+    setCHX(mx);
+    setCHY(my);
+    setCVX(mx);
+    setCVY(my);
+    setCDX(mx);
+    setCDY(my);
+  });
+
+  // Hover States
+  document
+    .querySelectorAll("a, .magnetic-btn, .hud-btn, .project-row")
+    .forEach((el) => {
+      el.addEventListener("mouseenter", () => {
+        gsap.to([c_h, c_v], { scale: 1.5, opacity: 0.3, duration: 0.3 });
+        gsap.to(c_dot, { scale: 3, backgroundColor: "#fff", duration: 0.3 });
+      });
+      el.addEventListener("mouseleave", () => {
+        gsap.to([c_h, c_v], { scale: 1, opacity: 1, duration: 0.3 });
+        gsap.to(c_dot, {
+          scale: 1,
+          backgroundColor: "var(--accent)",
+          duration: 0.3,
+        });
+      });
+    });
+}
+
+// --- 2. Lenis Smooth Scroll & Engine Physics ---
 gsap.registerPlugin(ScrollTrigger);
-lenis.on("scroll", ScrollTrigger.update);
+const lenis = prefersReducedMotion
+  ? null
+  : new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+if (lenis) {
+  lenis.on("scroll", ScrollTrigger.update);
+}
 
 const rpmCounter = document.getElementById("rpm-counter");
 const rpmFill = document.getElementById("rpm-fill");
@@ -55,16 +78,20 @@ let currentRpm = IDLE_RPM;
 let targetRpm = IDLE_RPM;
 
 // Grab velocity directly from the Lenis scroll event
-lenis.on("scroll", (e) => {
-  let scrollVelocity = Math.abs(e.velocity || 0);
-  // Multiply velocity to make it sensitive (tweak the 150 if it revs too fast/slow)
-  targetRpm = IDLE_RPM + Math.min(scrollVelocity * 150, MAX_RPM - IDLE_RPM);
-});
+if (lenis) {
+  lenis.on("scroll", (e) => {
+    let scrollVelocity = Math.abs(e.velocity || 0);
+    // Multiply velocity to make it sensitive (tweak the 150 if it revs too fast/slow)
+    targetRpm = IDLE_RPM + Math.min(scrollVelocity * 150, MAX_RPM - IDLE_RPM);
+  });
+}
 
 // ONE single, optimized render loop for the entire site
 gsap.ticker.add((time) => {
   // 1. Update Scroll
-  lenis.raf(time * 1000);
+  if (lenis) {
+    lenis.raf(time * 1000);
+  }
 
   // 2. Engine Physics
   // Decay target RPM back to idle when scroll stops
@@ -89,11 +116,11 @@ gsap.ticker.add((time) => {
 
 gsap.ticker.lagSmoothing(0);
 
-// --- 3. Image Sequence (Limited to 400 frames for Intro) ---
+// --- 3. Image Sequence (Limited frames for Intro) ---
 const canvas = document.getElementById("skcanvas");
 const ctx = canvas.getContext("2d", { alpha: false });
 
-const maxFrames = 300;
+const maxFrames = prefersReducedMotion ? 120 : 300;
 const images = [];
 const seq = { frame: 1 };
 let loaded = 0;
@@ -126,35 +153,55 @@ function renderCanvas() {
   ctx.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale);
 }
 
-// Preload the first 400 frames
-// --- PROGRESSIVE PRELOADER ---
-const framesToWait = 35; // Boot the site after just 35 frames
+// Preload with a small concurrency to reduce CPU/network spikes
+const framesToWait = prefersReducedMotion ? 12 : 35; // Boot the site quickly
+const maxConcurrentLoads = prefersReducedMotion ? 2 : 4;
 let hasBooted = false;
 
-for (let i = 1; i <= maxFrames; i++) {
-  const img = new Image();
-  img.src = `assets/${String(i).padStart(5, "0")}.png`;
+let nextToLoad = 1;
+let activeLoads = 0;
 
-  img.onload = () => {
-    loaded++;
+function queueLoads() {
+  while (activeLoads < maxConcurrentLoads && nextToLoad <= maxFrames) {
+    const frameIndex = nextToLoad;
+    nextToLoad++;
+    activeLoads++;
 
-    // Fake the percentage so it hits 100% quickly based on our 35 frame target
-    if (!hasBooted) {
-      let pct = Math.min(Math.floor((loaded / framesToWait) * 100), 100);
-      loadPct.innerText = String(pct).padStart(3, "0");
-      loadBar.style.width = pct + "%";
-    }
+    const img = new Image();
+    img.decoding = "async";
+    img.src = `assets/${String(frameIndex).padStart(5, "0")}.png`;
+    images[frameIndex - 1] = img;
 
-    if (loaded === 1) renderCanvas();
+    img.onload = () => {
+      loaded++;
+      activeLoads--;
 
-    // Ignite the site early. Let the rest load invisibly in the background.
-    if (loaded >= framesToWait && !hasBooted) {
-      hasBooted = true;
-      initAnimations();
-    }
-  };
-  images.push(img);
+      // Fake the percentage so it hits 100% quickly based on our target
+      if (!hasBooted) {
+        let pct = Math.min(Math.floor((loaded / framesToWait) * 100), 100);
+        loadPct.innerText = String(pct).padStart(3, "0");
+        loadBar.style.width = pct + "%";
+      }
+
+      if (loaded === 1) renderCanvas();
+
+      // Ignite the site early. Let the rest load invisibly in the background.
+      if (loaded >= framesToWait && !hasBooted) {
+        hasBooted = true;
+        initAnimations();
+      }
+
+      queueLoads();
+    };
+
+    img.onerror = () => {
+      activeLoads--;
+      queueLoads();
+    };
+  }
 }
+
+queueLoads();
 
 // Fallback safety (drops from 4000ms to 2500ms so they aren't stuck waiting)
 setTimeout(() => {
@@ -187,8 +234,12 @@ function initAnimations() {
     onUpdate: () => {
       renderCanvas();
       let currFrame = Math.floor(seq.frame);
-      frameCounter.innerText = `${String(currFrame).padStart(3, "0")} / 400`;
-      hudFill.style.width = `${(currFrame / maxFrames) * 100}%`;
+      if (frameCounter) {
+        frameCounter.innerText = `${String(currFrame).padStart(3, "0")} / ${maxFrames}`;
+      }
+      if (hudFill) {
+        hudFill.style.width = `${(currFrame / maxFrames) * 100}%`;
+      }
     },
   });
 
