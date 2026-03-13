@@ -19,6 +19,16 @@
   cursor: none;
 }
 
+body.no-custom-cursor * {
+  cursor: auto !important;
+}
+
+body.no-custom-cursor #cursor-h,
+body.no-custom-cursor #cursor-v,
+body.no-custom-cursor #cursor-dot {
+  display: none;
+}
+
 body {
   background-color: var(--black);
   color: var(--white);
